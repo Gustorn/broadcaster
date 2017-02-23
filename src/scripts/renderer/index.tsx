@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import * as React from "react";
 import {render} from "react-dom";
 import {AppContainer} from "react-hot-loader";
