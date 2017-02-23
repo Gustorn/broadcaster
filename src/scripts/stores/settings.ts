@@ -1,12 +1,12 @@
 import Storage from "../storage";
 
-export default class ConfigStore extends Storage<ConfigStore>
+export default class SettingsStore extends Storage<SettingsStore>
 {
 	hardwareAcceleration = false;
 	smoothScrolling = false;
 
 	constructor()
 	{
-		super("config.json");
+		super("settings.json");
 	}
 }

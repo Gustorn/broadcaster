@@ -1,13 +1,13 @@
 import {app, BrowserWindow} from "electron";
-import ConfigStore from "../stores/config";
+import SettingsStore from "../stores/settings";
 import {init as initIpc} from "./ipc";
 import {init as initDev} from "./dev";
 
 export let window: Electron.BrowserWindow | null;
 
 const dev = process.env.NODE_ENV != "production";
-const config = new ConfigStore();
-config.initSync();
+const settings = new SettingsStore();
+settings.initSync();
 initApp();
 
 function initApp()
@@ -16,8 +16,8 @@ function initApp()
 
 	app.commandLine.appendSwitch("ignore-gpu-blacklist");
 
-	if (!config.hardwareAcceleration) app.disableHardwareAcceleration();
-	if (!config.smoothScrolling) app.commandLine.appendSwitch("disable-smooth-scrolling");
+	if (!settings.hardwareAcceleration) app.disableHardwareAcceleration();
+	if (!settings.smoothScrolling) app.commandLine.appendSwitch("disable-smooth-scrolling");
 }
 
 async function ready()

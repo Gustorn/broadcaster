@@ -1,21 +1,21 @@
 import * as React from "react";
 import {observable} from "mobx";
 import {observer} from "mobx-react";
-import ConfigStore from "../../stores/config";
 import ScenesStore from "../../stores/scenes";
+import SettingsStore from "../../stores/settings";
 import UiStore from "../../stores/ui";
 import * as styles from "../../../styles/main.scss";
 import Sources from "./Sources";
 import Dragger from "./Dragger";
 
-const configStore = new ConfigStore();
 const scenesStore = new ScenesStore();
+const settingsStore = new SettingsStore();
 const uiStore = new UiStore();
 
 function saveStores()
 {
-	configStore.saveSync();
 	scenesStore.saveSync();
+	settingsStore.saveSync();
 	uiStore.saveSync();
 }
 
@@ -26,8 +26,8 @@ export default class Main extends React.Component<any, any>
 
 	async componentDidMount()
 	{
-		await configStore.init();
 		await scenesStore.init();
+		await settingsStore.init();
 		await uiStore.init();
 		this.loaded = true;
 		(window as any)["save"] = saveStores;
