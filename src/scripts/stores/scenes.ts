@@ -1,35 +1,10 @@
 import {observable, action} from "mobx";
 import t from "../i18n";
-import Storage, {serializeWith} from "../storage";
+import Storage, {Type} from "../storage";
 
-export default class ScenesStore extends Storage<ScenesStore>
+export class Source
 {
-	@serializeWith<ScenesStore>(
-		arr => arr.map((s: any) => {
-			const scene = new Scene();
-			Object.assign(scene, s);
-			return scene;
-		})
-	)
-	@observable scenes: Scene[] = [new Scene()];
-
-	constructor()
-	{
-		super("scenes.json");
-	}
-
-	@action
-	async init()
-	{
-		const data = await this.load(ScenesStore);
-		Object.assign(this, data);
-	}
-
-	@action.bound
-	addScene(scene: Scene)
-	{
-		this.scenes.push(scene);
-	}
+	@observable name: string = "";
 }
 
 export class Scene
@@ -44,7 +19,19 @@ export class Scene
 	}
 }
 
-export class Source
+export default class ScenesStore extends Storage<ScenesStore>
 {
-	@observable name: string = "";
+	@Type(() => Scene)
+	@observable scenes: Scene[] = [new Scene()];
+
+	constructor()
+	{
+		super("scenes.json");
+	}
+
+	@action.bound
+	addScene(scene: Scene)
+	{
+		this.scenes.push(scene);
+	}
 }

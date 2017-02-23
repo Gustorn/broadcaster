@@ -1,65 +1,54 @@
 import {remote, app} from "electron";
 import {join} from "path";
-import {writeFile, writeFileSync, readFile} from "mz/fs";
-
-function replacer(storage: any, key: string, value: string)
-{
-	if (storage._noSerialize.includes(key)) return;
-	else return value;
-}
+import {writeFile, writeFileSync, readFile, readFileSync} from "mz/fs";
+import {Exclude, classToClass, serialize, deserialize} from "class-transformer";
 
 export default class Storage<T extends Storage<any>>
 {
-	@noSerialize private _args: any[];
-	@noSerialize private _isWriting: boolean;
-	@noSerialize private _path: string;
-	@noSerialize _noSerialize: string[];
-	@noSerialize _serializeWith: Map<string, [Function, Function | undefined]>;
+	@Exclude() private _path: string;
+	@Exclude() private _isWriting: boolean;
 
-	constructor(fileName: string, ...args: any[])
+	constructor(fileName: string)
 	{
-		this._args = args;
 		this._path = join((app || remote.app).getPath("userData"), fileName);
 	}
 
-	private deserialize(data: any)
+	async init()
 	{
-		if (!this._serializeWith) return data;
-		for (let entry of this._serializeWith.entries())
-		{
-			const name = entry[0];
-			const deserialize = entry[1][0];
-			data[name] = deserialize(data[name], this);
-		}
-
-		return data;
+		const data = await this.load(this.constructor as any);
+		Object.assign(this, data);
 	}
 
-	private serialize(data: any)
+	initSync()
 	{
-		if (!this._serializeWith) return data;
-		for (let entry of this._serializeWith.entries())
-		{
-			const name = entry[0];
-			const serialize = entry[1][1];
-			if (!serialize) break;
-
-			data[name] = serialize(data[name], this);
-		}
-
-		return data;
+		const data = this.loadSync(this.constructor as any);
+		Object.assign(this, data);
 	}
 
-	async load(data: {new(..._: any[]): T}): Promise<T>
+	async load(cls: {new(..._: any[]): T}): Promise<T>
 	{
 		try
 		{
 			const data = await readFile(this._path, "utf8");
-			return this.deserialize(JSON.parse(data));
+			return deserialize(cls, data);
 		}
 		catch (e)
 		{
-			if (e.code == "ENOENT") return this.deserialize(new data(this._args));
+			if (e.code == "ENOENT") return classToClass(new cls());
+			else throw e;
+		}
+	}
+
+	loadSync(cls: {new(..._: any[]): T}): T
+	{
+		try
+		{
+			const data = readFileSync(this._path, "utf8");
+			return deserialize(cls, data);
+		}
+		catch (e)
+		{
+			if (e.code == "ENOENT") return classToClass(new cls());
 			else throw e;
 		}
 	}
@@ -69,7 +58,7 @@ export default class Storage<T extends Storage<any>>
 		if (this._isWriting) return;
 
 		this._isWriting = true;
-		await writeFile(this._path, JSON.stringify(this.serialize(this), replacer.bind(null, this)));
+		await writeFile(this._path, serialize(this));
 		this._isWriting = false;
 	}
 
@@ -78,21 +67,9 @@ export default class Storage<T extends Storage<any>>
 		if (this._isWriting) return;
 
 		this._isWriting = true;
-		writeFileSync(this._path, JSON.stringify(this.serialize(this), replacer.bind(null, this)));
+		writeFileSync(this._path, serialize(this));
 		this._isWriting = false;
 	}
 }
 
-export function noSerialize(target: any, key: string)
-{
-	if (!target._noSerialize) target._noSerialize = ["_noSerialize"];
-	target._noSerialize.push(key);
-}
-
-export function serializeWith<T extends Storage<any>>(deserialize: (obj: any, self: T) => any, serialize?: (obj: any, self: T) => any)
-{
-	return (target: Storage<T>, key: string) => {
-		if (!target._serializeWith) target._serializeWith = new Map();
-		target._serializeWith.set(key, [deserialize, serialize]);
-	}
-}
+export * from "class-transformer";

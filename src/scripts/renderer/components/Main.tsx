@@ -1,5 +1,4 @@
 import * as React from "react";
-import {remote} from "electron";
 import {observable} from "mobx";
 import {observer} from "mobx-react";
 import ConfigStore from "../../stores/config";
@@ -11,7 +10,7 @@ import Dragger from "./Dragger";
 
 const configStore = new ConfigStore();
 const scenesStore = new ScenesStore();
-const uiStore = new UiStore(scenesStore);
+const uiStore = new UiStore();
 
 function saveStores()
 {
@@ -33,12 +32,7 @@ export default class Main extends React.Component<any, any>
 		this.loaded = true;
 		(window as any)["save"] = saveStores;
 
-		remote.app.on("before-quit", saveStores);
-	}
-
-	componentWillUnmount()
-	{
-		remote.app.removeListener("before-quit", saveStores);
+		window.onbeforeunload = saveStores;
 	}
 
 	render()
@@ -52,7 +46,7 @@ export default class Main extends React.Component<any, any>
 					<Dragger ref="dragger" uiStore={uiStore}
 						min={200} max={window.innerHeight - 100} />
 
-					<Sources uiStore={uiStore} />
+					<Sources scenesStore={scenesStore} uiStore={uiStore} />
 				</footer>
 			</div>
 		) : (

@@ -1,17 +1,12 @@
-import {action} from "mobx";
 import Storage from "../storage";
 
 export default class ConfigStore extends Storage<ConfigStore>
 {
+	hardwareAcceleration = false;
+	smoothScrolling = false;
+
 	constructor()
 	{
 		super("config.json");
-	}
-
-	@action
-	async init()
-	{
-		const data = await this.load(ConfigStore);
-		Object.assign(this, data);
 	}
 }
