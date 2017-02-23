@@ -2,7 +2,7 @@
 	"scenes": {
 		"defaultName": "Scene"
 	},
-	"sources": {
-		"listTitle": "Sources"
+	"layers": {
+		"listTitle": "Layers"
 	}
 }

@@ -2,7 +2,7 @@ import {observable, action} from "mobx";
 import t from "../i18n";
 import Storage, {Type} from "../storage";
 
-export class Source
+export class Layer
 {
 	@observable name: string = "";
 }
@@ -10,12 +10,12 @@ export class Source
 export class Scene
 {
 	@observable name: string = t("scenes.defaultName");
-	@observable sources: Source[] = [];
+	@observable layers: Layer[] = [];
 
 	@action.bound
-	addSource(source: Source)
+	addLayer(layer: Layer)
 	{
-		this.sources.push(source);
+		this.layers.push(layer);
 	}
 }
 

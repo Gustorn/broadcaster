@@ -5,8 +5,8 @@ import ScenesStore from "../../stores/scenes";
 import SettingsStore from "../../stores/settings";
 import UiStore from "../../stores/ui";
 import * as styles from "../../../styles/main.scss";
-import Sources from "./Sources";
 import Dragger from "./Dragger";
+import Layers from "./Layers";
 
 const scenesStore = new ScenesStore();
 const settingsStore = new SettingsStore();
@@ -46,7 +46,7 @@ export default class Main extends React.Component<any, any>
 					<Dragger ref="dragger" uiStore={uiStore}
 						min={200} max={window.innerHeight - 100} />
 
-					<Sources scenesStore={scenesStore} uiStore={uiStore} />
+					<Layers scenesStore={scenesStore} uiStore={uiStore} />
 				</footer>
 			</div>
 		) : (
